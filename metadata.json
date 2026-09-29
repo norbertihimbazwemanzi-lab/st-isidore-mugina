@@ -1,0 +1,6 @@
+{
+  "name": "GS St Isidore Mugina",
+  "description": "Official portal for Groupe Scolaire Saint Isidore Mugina (Kamonyi, Rwanda). Secondary education, TVET technical programs, e-learning resources, and admissions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
