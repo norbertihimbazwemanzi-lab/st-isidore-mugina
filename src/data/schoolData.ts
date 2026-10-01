@@ -214,7 +214,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'headteacher@gssidoremugina.rw',
     bio: 'Dedicated educational leader directing GS St Isidore Mugina with a steadfast focus on academic discipline, child literacy, community collaboration, and teacher professional growth.',
-    avatarInitials: 'HC'
+    avatarInitials: 'HC',
+    accessPasscode: 'HEAD-MUG-2026',
   },
   {
     id: 'staff-02',
@@ -227,7 +228,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'comptable@gssidoremugina.rw',
     bio: 'Oversees transparent financial management, government capitation grants, school feeding subsidies, PTA development funds, and student registration receipts.',
-    avatarInitials: 'LM'
+    avatarInitials: 'LM',
+    accessPasscode: 'BURSAR-MUG-2026',
   },
   {
     id: 'staff-03',
@@ -240,7 +242,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'dos.secondary@gssidoremugina.rw',
     bio: 'Coordinates the secondary syllabus, science laboratories, term evaluations, teacher mentoring, and national NESA examination readiness.',
-    avatarInitials: 'JD'
+    avatarInitials: 'JD',
+    accessPasscode: 'DOS-MUG-2026',
   },
   {
     id: 'staff-04',
@@ -253,7 +256,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'primary@gssidoremugina.rw',
     bio: 'Supervises classroom instruction across P1 to P6 streams, early grade reading assessments (EGRA), and PLE candidate preparation.',
-    avatarInitials: 'MB'
+    avatarInitials: 'MB',
+    accessPasscode: 'PRIM-MUG-2026',
   },
   {
     id: 'staff-05',
@@ -266,7 +270,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'nursery@gssidoremugina.rw',
     bio: 'Passionate early childhood educator coordinating structured play, nutrition monitoring, child welfare, and parent communication for nursery learners.',
-    avatarInitials: 'NG'
+    avatarInitials: 'NG',
+    accessPasscode: 'NURS-MUG-2026',
   },
   {
     id: 'staff-06',
@@ -279,7 +284,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'discipline@gssidoremugina.rw',
     bio: 'Guiding student character formation, punctual attendance, school feeding order, sports activities, and traditional Rwandan values (Itorero ry\'Ishuri).',
-    avatarInitials: 'EH'
+    avatarInitials: 'EH',
+    accessPasscode: 'DISC-MUG-2026',
   },
   {
     id: 'staff-07',
@@ -292,7 +298,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'bizimana.p1@gssidoremugina.rw',
     bio: 'Expert in early grade reading and decodable phonics, leading the classroom literacy sessions with National Library materials.',
-    avatarInitials: 'BA'
+    avatarInitials: 'BA',
+    accessPasscode: 'LIB-MUG-2026',
   },
   {
     id: 'staff-08',
@@ -305,7 +312,8 @@ export const LEADERSHIP_STAFF: StaffMember[] = [
     phone: '0788249507',
     email: 'chantal.p4@gssidoremugina.rw',
     bio: 'Supports young learners transitioning to English as a language of instruction, running afternoon reading clubs.',
-    avatarInitials: 'UC'
+    avatarInitials: 'UC',
+    accessPasscode: 'MATH-MUG-2026',
   }
 ];
 

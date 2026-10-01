@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { 
   Users, Calendar, Bell, GraduationCap, Plus, Trash2, Edit2, 
   Save, X, CheckCircle2, AlertCircle, BookOpen, Clock, MapPin, 
-  Tag, Phone, Mail, Award, Lock, LogOut, Send, UserCheck, ShieldCheck, Key, FileText 
+  Tag, Phone, Mail, Award, Lock, LogOut, Send, UserCheck, ShieldCheck, Key, FileText,
+  TrendingUp, BarChart3, Image as ImageIcon, Upload, Camera, RefreshCw
 } from 'lucide-react';
 import { useSchool, HEADTEACHER_ADMIN_CODE } from '../context/SchoolContext';
 import { StudentResult, StaffMember } from '../types';
+import { PerformanceAnalyticsDashboard } from './PerformanceAnalyticsDashboard';
 
 interface HeadteacherAdminSuiteProps {
   onClose: () => void;
@@ -19,8 +21,9 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
     adminCodeError,
     teachers, 
     addTeacher, 
-    editTeacher,
+    editTeacher, 
     deleteTeacher,
+    updateTeacherPhoto,
     news, 
     publishNews, 
     deleteNews,
@@ -33,9 +36,11 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
     libraryDocuments,
     addLibraryDocument,
     deleteLibraryDocument,
+    schoolLogo,
+    updateSchoolLogo,
   } = useSchool();
 
-  const [activeTab, setActiveTab] = useState<'teachers' | 'calendar' | 'news' | 'marks' | 'library'>('teachers');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'teachers' | 'calendar' | 'news' | 'marks' | 'library' | 'branding'>('analytics');
   const [codeInput, setCodeInput] = useState('');
 
   // 1. Teacher Edit and Add state
@@ -322,14 +327,43 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
 
           <div className="flex items-center gap-2">
             {isAdminAuthenticated && (
-              <button
-                onClick={logoutAdmin}
-                className="px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-1.5"
-                title="Log out from Headteacher session"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
+              <>
+                {/* Direct File Input to upload custom school website logo */}
+                <label
+                  htmlFor="quick-admin-logo-upload"
+                  className="px-3 py-1.5 text-xs font-semibold text-emerald-200 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/50 rounded-lg cursor-pointer flex items-center gap-1.5 transition-colors shadow-xs"
+                  title="Upload school website logo from your computer"
+                >
+                  <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="hidden sm:inline">Upload School Logo</span>
+                </label>
+                <input
+                  id="quick-admin-logo-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const dataUrl = ev.target?.result as string;
+                        if (dataUrl) updateSchoolLogo(dataUrl);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+
+                <button
+                  onClick={logoutAdmin}
+                  className="px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-1.5"
+                  title="Log out from Headteacher session"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              </>
             )}
             <button
               onClick={onClose}
@@ -361,7 +395,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                 autoFocus
                 value={codeInput}
                 onChange={(e) => setCodeInput(e.target.value)}
-                placeholder="Enter user code: 280508200528"
+                placeholder="Enter confidential security code..."
                 className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-sm font-mono text-white tracking-widest focus:outline-none focus:border-amber-400"
               />
 
@@ -387,6 +421,18 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
             {/* Navigation Tabs */}
             <div className="bg-slate-950/60 border-b border-slate-800 px-4 sm:px-6 flex items-center gap-2 overflow-x-auto shrink-0">
               <button
+                onClick={() => setActiveTab('analytics')}
+                className={`py-3.5 px-3 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'analytics'
+                    ? 'border-amber-400 text-amber-300'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <span>Performance Analytics</span>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('teachers')}
                 className={`py-3.5 px-3 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                   activeTab === 'teachers'
@@ -395,7 +441,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                 }`}
               >
                 <Users className="w-4 h-4" />
-                <span>1. Teachers & Class Allocations ({teachers.length})</span>
+                <span>Teachers & Allocations ({teachers.length})</span>
               </button>
 
               <button
@@ -407,7 +453,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                 }`}
               >
                 <Calendar className="w-4 h-4" />
-                <span>2. School Calendar & Events ({events.length})</span>
+                <span>Calendar & Events ({events.length})</span>
               </button>
 
               <button
@@ -419,7 +465,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                 }`}
               >
                 <Bell className="w-4 h-4" />
-                <span>3. Publish School News ({news.length})</span>
+                <span>Publish News ({news.length})</span>
               </button>
 
               <button
@@ -431,7 +477,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                 }`}
               >
                 <GraduationCap className="w-4 h-4" />
-                <span>4. Student Marks & Streams ({allStudents.length})</span>
+                <span>Student Marks & Streams ({allStudents.length})</span>
               </button>
 
               <button
@@ -443,12 +489,29 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                <span>5. Digital Library PDFs ({libraryDocuments.length})</span>
+                <span>Digital Library PDFs ({libraryDocuments.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('branding')}
+                className={`py-3.5 px-3 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'branding'
+                    ? 'border-amber-400 text-amber-300'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <ImageIcon className="w-4 h-4 text-amber-400" />
+                <span>School Logo & Branding</span>
               </button>
             </div>
 
             {/* TAB CONTENT AREA */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+              {/* ----------------- TAB: PERFORMANCE ANALYTICS DASHBOARD ----------------- */}
+              {activeTab === 'analytics' && (
+                <PerformanceAnalyticsDashboard />
+              )}
 
               {/* ----------------- TAB 1: TEACHERS & CLASS ALLOCATIONS ----------------- */}
               {activeTab === 'teachers' && (
@@ -758,8 +821,42 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                           className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 flex items-start justify-between gap-3 hover:border-slate-600 transition-colors"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-950 text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-700/50">
-                              {tr.avatarInitials}
+                            <div className="relative group shrink-0">
+                              {tr.photoUrl ? (
+                                <img
+                                  src={tr.photoUrl}
+                                  alt={tr.name}
+                                  className="w-10 h-10 rounded-lg object-cover border border-emerald-500/50"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-emerald-950 text-emerald-300 font-bold flex items-center justify-center border border-emerald-700/50">
+                                  {tr.avatarInitials}
+                                </div>
+                              )}
+                              <label
+                                htmlFor={`admin-tr-photo-${tr.id}`}
+                                className="absolute -bottom-1 -right-1 p-0.5 bg-slate-900 hover:bg-slate-700 text-amber-400 rounded-full border border-slate-700 cursor-pointer shadow-xs"
+                                title="Upload teacher profile picture"
+                              >
+                                <Camera className="w-3 h-3" />
+                              </label>
+                              <input
+                                id={`admin-tr-photo-${tr.id}`}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                      const dataUrl = ev.target?.result as string;
+                                      if (dataUrl) updateTeacherPhoto(tr.id, dataUrl);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
                             </div>
                             <div>
                               <h5 className="text-sm font-bold text-white">{tr.name}</h5>
@@ -778,6 +875,11 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
 
                               <div className="mt-1 text-[11px] text-slate-400">
                                 Tel: {tr.phone || '0788249507'}
+                              </div>
+
+                              <div className="mt-2 flex items-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/50 w-fit">
+                                <Key className="w-3 h-3 text-amber-400 shrink-0" />
+                                <span>Credential: <strong>{tr.accessPasscode || 'TEACH-2026'}</strong></span>
                               </div>
                             </div>
                           </div>
@@ -1088,13 +1190,24 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                       </select>
                     </div>
 
-                    <button
-                      onClick={() => setIsAddingStudent(true)}
-                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-colors flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Enroll New Pupil</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setActiveTab('analytics')}
+                        className="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                        title="Jump to Student Performance Analytics Dashboard"
+                      >
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        <span>Performance Analytics</span>
+                      </button>
+
+                      <button
+                        onClick={() => setIsAddingStudent(true)}
+                        className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-colors flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Enroll New Pupil</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Students Table */}
@@ -1296,6 +1409,144 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                           </button>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ----------------- TAB: SCHOOL LOGO & BRANDING ----------------- */}
+              {activeTab === 'branding' && (
+                <div className="space-y-6 animate-in fade-in duration-150">
+                  <div className="p-6 rounded-2xl bg-slate-800/80 border border-slate-700 shadow-md space-y-6">
+                    <div>
+                      <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
+                        <ImageIcon className="w-4 h-4" />
+                        <span>Website Custom Branding</span>
+                      </div>
+                      <h4 className="text-xl font-bold text-white">
+                        Upload School Website Logo from Computer
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+                        Upload your official GS Saint Isidore Mugina emblem or badge from your local files. Once uploaded, this logo immediately replaces the default placeholder crest in the top navigation bar, student report cards, and footer.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                      {/* Current Logo Preview Card */}
+                      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-700/80 flex flex-col items-center justify-center text-center space-y-3">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                          Current Active Logo
+                        </span>
+                        
+                        <div className="w-28 h-28 rounded-2xl bg-slate-800 border-2 border-emerald-500/50 flex items-center justify-center overflow-hidden p-2 shadow-inner">
+                          {schoolLogo ? (
+                            <img
+                              src={schoolLogo}
+                              alt="Current School Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center text-emerald-300">
+                              <GraduationCap className="w-12 h-12 text-emerald-400 mb-1" />
+                              <span className="text-[10px] font-bold">Default Crest</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="text-center">
+                          <p className="text-xs font-bold text-white">
+                            {schoolLogo ? 'Custom School Logo Active' : 'Default Academic Crest'}
+                          </p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            {schoolLogo 
+                              ? 'Stored locally and visible across all website components.'
+                              : 'Upload an image file below to replace with your school emblem.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Upload Controls & Actions */}
+                      <div className="flex flex-col justify-between p-6 rounded-2xl bg-slate-900 border border-slate-700/80 space-y-4">
+                        <div className="space-y-3">
+                          <label className="block text-xs font-bold text-slate-200">
+                            Select School Logo File:
+                          </label>
+                          <input
+                            type="file"
+                            id="admin-school-logo-input"
+                            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+
+                              if (!file.type.startsWith('image/')) {
+                                alert('Please select a valid image file (PNG, JPG, SVG, WebP).');
+                                return;
+                              }
+
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                const dataUrl = ev.target?.result as string;
+                                if (dataUrl) {
+                                  updateSchoolLogo(dataUrl);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }}
+                          />
+
+                          <label
+                            htmlFor="admin-school-logo-input"
+                            className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md hover:scale-[1.01]"
+                          >
+                            <Upload className="w-4 h-4" />
+                            <span>Choose Logo Image File from Computer...</span>
+                          </label>
+
+                          {schoolLogo && (
+                            <button
+                              type="button"
+                              onClick={() => updateSchoolLogo(null)}
+                              className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-800/40 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5 text-rose-400" />
+                              <span>Reset to Default School Crest</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="text-[11px] text-slate-400 space-y-1.5 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+                          <span className="font-bold text-slate-300 block">Recommended Specifications:</span>
+                          <p>• Transparent PNG, SVG, or crisp JPG.</p>
+                          <p>• Square or circular layout (recommended 256×256 or 512×512).</p>
+                          <p>• File is stored directly in browser local storage and persists across reloads.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Live Preview Bar */}
+                    <div className="pt-4 border-t border-slate-700">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">
+                        Live Preview: How It Appears on the Website Navbar
+                      </span>
+                      <div className="p-4 rounded-xl bg-white text-slate-900 border border-slate-200 flex items-center gap-3.5">
+                        {schoolLogo ? (
+                          <img
+                            src={schoolLogo}
+                            alt="Logo preview"
+                            className="w-11 h-11 rounded-xl object-contain bg-slate-50 p-1 border border-emerald-600/30 shadow-xs"
+                          />
+                        ) : (
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-800 to-teal-900 text-white flex items-center justify-center shadow-xs">
+                            <GraduationCap className="w-6 h-6 text-emerald-100" />
+                          </div>
+                        )}
+                        <div>
+                          <div className="text-base font-bold text-slate-900">GS St Isidore Mugina</div>
+                          <div className="text-[11px] text-slate-500 font-medium uppercase">Mugina Sector · Kamonyi District</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

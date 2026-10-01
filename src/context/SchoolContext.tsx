@@ -1,23 +1,41 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
-  StaffMember, NewsItem, EventItem, StudentResult, EResource 
+  StaffMember, NewsItem, EventItem, StudentResult, EResource, Language 
 } from '../types';
 import { 
   LEADERSHIP_STAFF, NEWS_ANNOUNCEMENTS, UPCOMING_EVENTS, MOCK_STUDENTS, E_RESOURCES 
 } from '../data/schoolData';
+import { TRANSLATIONS } from '../data/translations';
 
 interface SchoolContextType {
-  // Authentication
+  // Language Context
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+
+  // School Website Custom Logo
+  schoolLogo: string | null;
+  updateSchoolLogo: (logoUrl: string | null) => void;
+
+  // Headteacher Master Admin Authentication
   isAdminAuthenticated: boolean;
   loginAdmin: (code: string) => boolean;
   logoutAdmin: () => void;
   adminCodeError: string | null;
 
-  // Teachers / Staff (Add, Edit, Delete)
+  // Staff & Teacher Authentication (Credential-based login)
+  currentAuthenticatedStaff: StaffMember | null;
+  loginStaff: (identifier: string, passcode: string) => { success: boolean; message: string };
+  logoutStaff: () => void;
+
+  // Teachers / Staff (Add, Edit, Delete, Update Photo, Update Bio)
   teachers: StaffMember[];
   addTeacher: (teacher: Omit<StaffMember, 'id' | 'avatarInitials'>) => void;
   editTeacher: (id: string, updated: Partial<StaffMember>) => void;
   deleteTeacher: (id: string) => void;
+  updateTeacherPhoto: (teacherId: string, photoUrl: string) => boolean;
+  updateTeacherBio: (teacherId: string, bio: string, phone?: string) => boolean;
+  assignTeacherPasscode: (teacherId: string, newPasscode: string) => void;
 
   // News Announcements (Publish, Delete)
   news: NewsItem[];
@@ -58,8 +76,16 @@ const loadStorage = <T,>(key: string, fallback: T): T => {
 };
 
 export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [language, setLanguageState] = useState<Language>(() => loadStorage('gs_mugina_language', 'en'));
+  const [schoolLogo, setSchoolLogoState] = useState<string | null>(() => loadStorage('gs_mugina_custom_logo', null));
+
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminCodeError, setAdminCodeError] = useState<string | null>(null);
+
+  // Authenticated Staff Member (Teacher / Headteacher / Bursar)
+  const [currentAuthenticatedStaff, setCurrentAuthenticatedStaff] = useState<StaffMember | null>(() =>
+    loadStorage<StaffMember | null>('gs_mugina_authenticated_staff', null)
+  );
 
   const [teachers, setTeachers] = useState<StaffMember[]>(() => loadStorage('gs_mugina_teachers', LEADERSHIP_STAFF));
   const [news, setNews] = useState<NewsItem[]>(() => loadStorage('gs_mugina_news', NEWS_ANNOUNCEMENTS));
@@ -69,35 +95,75 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const [notificationToast, setNotificationToast] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('gs_mugina_language', JSON.stringify(lang));
+    } catch {}
+    const msg = lang === 'rw' 
+      ? 'Ururimi rwahinduwe: Ikinyarwanda' 
+      : lang === 'fr' 
+      ? 'Langue modifiée: Français' 
+      : 'Language switched to English';
+    showToast(msg);
+  };
+
+  const t = (key: string): string => {
+    return TRANSLATIONS[language]?.[key] || TRANSLATIONS['en']?.[key] || key;
+  };
+
+  const updateSchoolLogo = (logoUrl: string | null) => {
+    setSchoolLogoState(logoUrl);
+    try {
+      if (logoUrl) {
+        localStorage.setItem('gs_mugina_custom_logo', JSON.stringify(logoUrl));
+      } else {
+        localStorage.removeItem('gs_mugina_custom_logo');
+      }
+    } catch {}
+    showToast(logoUrl ? 'School website logo updated successfully!' : 'Reset to default school crest.');
+  };
+
+  // Sync state to localStorage
+  useEffect(() => {
     try {
       localStorage.setItem('gs_mugina_teachers', JSON.stringify(teachers));
     } catch {}
   }, [teachers]);
 
-  React.useEffect(() => {
-    try {
-      localStorage.setItem('gs_mugina_library', JSON.stringify(libraryDocuments));
-    } catch {}
-  }, [libraryDocuments]);
-
-  React.useEffect(() => {
+  useEffect(() => {
     try {
       localStorage.setItem('gs_mugina_news', JSON.stringify(news));
     } catch {}
   }, [news]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     try {
       localStorage.setItem('gs_mugina_events', JSON.stringify(events));
     } catch {}
   }, [events]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    try {
+      localStorage.setItem('gs_mugina_library', JSON.stringify(libraryDocuments));
+    } catch {}
+  }, [libraryDocuments]);
+
+  useEffect(() => {
     try {
       localStorage.setItem('gs_mugina_students', JSON.stringify(students));
     } catch {}
   }, [students]);
+
+  useEffect(() => {
+    try {
+      if (currentAuthenticatedStaff) {
+        localStorage.setItem('gs_mugina_authenticated_staff', JSON.stringify(currentAuthenticatedStaff));
+      } else {
+        localStorage.removeItem('gs_mugina_authenticated_staff');
+      }
+    } catch {}
+  }, [currentAuthenticatedStaff]);
 
   const showToast = (message: string) => {
     setNotificationToast(message);
@@ -113,7 +179,7 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       showToast('Authenticated as Headteacher Habiyaremye Charles (Administrator)');
       return true;
     } else {
-      setAdminCodeError('Invalid Headteacher code. Please enter: 280508200528');
+      setAdminCodeError('Invalid security code. Please check credentials or contact administration.');
       return false;
     }
   };
@@ -121,6 +187,50 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const logoutAdmin = () => {
     setIsAdminAuthenticated(false);
     showToast('Signed out of Headteacher Administrator mode');
+  };
+
+  // Staff & Teacher Authentication (Credential given by Admin)
+  const loginStaff = (identifier: string, passcode: string): { success: boolean; message: string } => {
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPass = passcode.trim();
+
+    if (!cleanId || !cleanPass) {
+      return { success: false, message: 'Please enter your Staff ID / Email and your access credential.' };
+    }
+
+    // Match teacher by ID, email, or name
+    const foundTeacher = teachers.find(
+      (t) =>
+        t.id.toLowerCase() === cleanId ||
+        t.email?.toLowerCase() === cleanId ||
+        t.name.toLowerCase().includes(cleanId)
+    );
+
+    if (!foundTeacher) {
+      return { 
+        success: false, 
+        message: `No staff member found matching "${identifier}". Please confirm your official Staff ID with the Headteacher.` 
+      };
+    }
+
+    const validPasscode = foundTeacher.accessPasscode || 'TEACH-2026';
+    const isMasterCode = cleanPass === HEADTEACHER_ADMIN_CODE;
+
+    if (cleanPass === validPasscode || isMasterCode) {
+      setCurrentAuthenticatedStaff(foundTeacher);
+      showToast(`Welcome, ${foundTeacher.name}! You are now authenticated to update your profile photo and bio.`);
+      return { success: true, message: `Welcome back, ${foundTeacher.name}!` };
+    } else {
+      return { 
+        success: false, 
+        message: 'Incorrect credential passcode. Please obtain your staff passcode from the Headteacher Admin Suite.' 
+      };
+    }
+  };
+
+  const logoutStaff = () => {
+    setCurrentAuthenticatedStaff(null);
+    showToast('Logged out of Staff portal session.');
   };
 
   const addTeacher = (teacherData: Omit<StaffMember, 'id' | 'avatarInitials'>) => {
@@ -131,14 +241,18 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       .map((w) => w[0].toUpperCase())
       .join('');
 
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    const generatedPasscode = `TR-MUG-${randomSuffix}`;
+
     const newTeacher: StaffMember = {
       ...teacherData,
       id: `staff-${Date.now()}`,
       avatarInitials: initials || 'TR',
+      accessPasscode: teacherData.accessPasscode || generatedPasscode,
     };
 
     setTeachers((prev) => [newTeacher, ...prev]);
-    showToast(`Added ${newTeacher.name} to teaching staff for ${newTeacher.classAssigned}!`);
+    showToast(`Added ${newTeacher.name} with credential pass "${newTeacher.accessPasscode}"!`);
   };
 
   const editTeacher = (id: string, updated: Partial<StaffMember>) => {
@@ -161,12 +275,69 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return t;
       })
     );
-    showToast(`Updated staff credentials for ${updated.name || 'teacher'}`);
+    showToast(`Updated staff details for ${updated.name || 'teacher'}`);
   };
 
   const deleteTeacher = (id: string) => {
     setTeachers((prev) => prev.filter((t) => t.id !== id));
     showToast('Teacher record removed.');
+  };
+
+  // Only authenticated staff or Admin can update photo
+  const updateTeacherPhoto = (teacherId: string, photoUrl: string): boolean => {
+    const isSelf = currentAuthenticatedStaff?.id === teacherId;
+    const isHead = isAdminAuthenticated || currentAuthenticatedStaff?.role.includes('Headteacher');
+
+    if (!isSelf && !isHead) {
+      showToast('Permission denied: You must be logged in with your staff credential to update your profile photo.');
+      return false;
+    }
+
+    setTeachers((prev) =>
+      prev.map((t) => (t.id === teacherId ? { ...t, photoUrl } : t))
+    );
+
+    if (currentAuthenticatedStaff?.id === teacherId) {
+      setCurrentAuthenticatedStaff((prev) => prev ? { ...prev, photoUrl } : null);
+    }
+
+    showToast('Profile photo updated successfully!');
+    return true;
+  };
+
+  // Only authenticated staff or Admin can update bio & contact
+  const updateTeacherBio = (teacherId: string, bio: string, phone?: string): boolean => {
+    const isSelf = currentAuthenticatedStaff?.id === teacherId;
+    const isHead = isAdminAuthenticated || currentAuthenticatedStaff?.role.includes('Headteacher');
+
+    if (!isSelf && !isHead) {
+      showToast('Permission denied: You must be logged in with your staff credential to update your bio.');
+      return false;
+    }
+
+    setTeachers((prev) =>
+      prev.map((t) => (t.id === teacherId ? { ...t, bio, ...(phone ? { phone } : {}) } : t))
+    );
+
+    if (currentAuthenticatedStaff?.id === teacherId) {
+      setCurrentAuthenticatedStaff((prev) => prev ? { ...prev, bio, ...(phone ? { phone } : {}) } : null);
+    }
+
+    showToast('Staff biography updated successfully!');
+    return true;
+  };
+
+  const assignTeacherPasscode = (teacherId: string, newPasscode: string) => {
+    if (!isAdminAuthenticated) {
+      showToast('Only Headteacher Admin can assign or change staff credentials.');
+      return;
+    }
+
+    setTeachers((prev) =>
+      prev.map((t) => (t.id === teacherId ? { ...t, accessPasscode: newPasscode.trim() } : t))
+    );
+
+    showToast(`Assigned new access credential "${newPasscode.trim()}" to staff member!`);
   };
 
   const publishNews = (newsData: Omit<NewsItem, 'id' | 'date'>) => {
@@ -195,12 +366,12 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     setEvents((prev) => [...prev, newEvent]);
-    showToast(`Added "${newEvent.title}" to school calendar!`);
+    showToast(`Added calendar event: "${newEvent.title}"`);
   };
 
   const deleteEvent = (id: string) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
-    showToast('Event removed from calendar.');
+    showToast('Calendar event removed.');
   };
 
   const updateStudentMarks = (regNumber: string, updated: StudentResult) => {
@@ -238,10 +409,21 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   return (
     <SchoolContext.Provider
       value={{
+        language,
+        setLanguage,
+        t,
+        schoolLogo,
+        updateSchoolLogo,
+        updateTeacherPhoto,
+        updateTeacherBio,
+        assignTeacherPasscode,
         isAdminAuthenticated,
         loginAdmin,
         logoutAdmin,
         adminCodeError,
+        currentAuthenticatedStaff,
+        loginStaff,
+        logoutStaff,
         teachers,
         addTeacher,
         editTeacher,

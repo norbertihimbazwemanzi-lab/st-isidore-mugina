@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { TopBar } from './components/TopBar';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { StatsCounter } from './components/StatsCounter';
@@ -13,8 +12,11 @@ import { AdmissionSection } from './components/AdmissionSection';
 import { CampusFacilities } from './components/CampusFacilities';
 import { NewsAndEvents } from './components/NewsAndEvents';
 import { ContactSection } from './components/ContactSection';
+import { FAQSection } from './components/FAQSection';
+import { LiveChatWidget } from './components/LiveChatWidget';
 import { Footer } from './components/Footer';
 import { HeadteacherAdminSuite } from './components/HeadteacherAdminSuite';
+import { ScrollReveal } from './components/ScrollReveal';
 import { SchoolProvider, useSchool } from './context/SchoolContext';
 
 function SchoolAppContent() {
@@ -65,10 +67,7 @@ function SchoolAppContent() {
         </div>
       )}
 
-      {/* 1. Official Government & Contact Top Notice Bar (Tel: 0788249507) */}
-      <TopBar onOpenPortal={handleOpenPortal} onOpenApply={handleOpenApply} />
-
-      {/* 2. Top Navigation Bar */}
+      {/* Navigation Bar */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -76,77 +75,112 @@ function SchoolAppContent() {
         onOpenApply={handleOpenApply}
       />
 
-      {/* 3. Main Content Flow */}
+      {/* Main Content Flow with Framer Motion Scroll-Triggered Fade-In Transitions */}
       <main className="flex-1">
-        {/* Hero Section (No background photo on Home, clean academic backdrop) */}
-        <HeroSection
-          onExploreStreams={() => scrollToSection('streams')}
-          onOpenApply={handleOpenApply}
-          onOpenLibrary={() => scrollToSection('elearning')}
-        />
+        {/* 1. Hero Section with Animated Rotating Words & Photo Carousel */}
+        <ScrollReveal direction="none" duration={0.8}>
+          <HeroSection
+            onExploreStreams={() => scrollToSection('streams')}
+            onOpenApply={handleOpenApply}
+            onOpenLibrary={() => scrollToSection('elearning')}
+            onOpenPortal={handleOpenPortal}
+          />
+        </ScrollReveal>
 
-        {/* Quantified Proof Metrics (18 streams, 1,280+ students, 35 staff) */}
-        <StatsCounter />
+        {/* 2. Quantified Proof Metrics (18 streams, 1,280+ students, 35 staff) */}
+        <ScrollReveal delay={0.1} distance={24}>
+          <StatsCounter />
+        </ScrollReveal>
 
-        {/* About & Institutional Identity (Sous-Convention Catholique & National Library Partnership) */}
-        <AboutSection />
+        {/* 3. About & Institutional Identity (Sous-Convention Catholique & National Library Partnership) */}
+        <ScrollReveal delay={0.15}>
+          <AboutSection />
+        </ScrollReveal>
 
-        {/* 18 Classroom Streams Matrix (Nursery Baby-Top, P1-P6 A/B/C, S1-S3 A/B/C) */}
-        <ClassStreamsMatrix onSelectGradeForApply={handleSelectGradeForApply} />
+        {/* 4. 18 Classroom Streams Matrix (Nursery Baby-Top, P1-P6 A/B/C, S1-S3 A/B/C) */}
+        <ScrollReveal delay={0.15}>
+          <ClassStreamsMatrix onSelectGradeForApply={handleSelectGradeForApply} />
+        </ScrollReveal>
 
-        {/* Digital Library & E-Learning Hub (PLE, S3 & National Library Decodable Storybooks) */}
-        <ELearningHub />
+        {/* 5. Digital Library & E-Learning Hub (PLE, S3 & National Library Decodable Storybooks) */}
+        <ScrollReveal delay={0.15}>
+          <ELearningHub />
+        </ScrollReveal>
 
-        {/* Interactive Student Term Results Checker (Real campus background + Headteacher Admin login) */}
-        <StudentResultChecker
-          onOpenAdminSuite={handleOpenAdminSuite}
-        />
+        {/* 6. Interactive Student Term Results Checker (Real campus background + Headteacher Admin login) */}
+        <ScrollReveal delay={0.15}>
+          <StudentResultChecker
+            onOpenAdminSuite={handleOpenAdminSuite}
+          />
+        </ScrollReveal>
 
-        {/* Day School Fees & School Feeding Calculator (Gahunda yo kugaburira abana) */}
-        <FeeStructureCalculator />
+        {/* 7. Day School Fees & School Feeding Calculator (Gahunda yo kugaburira abana) */}
+        <ScrollReveal delay={0.15}>
+          <FeeStructureCalculator />
+        </ScrollReveal>
 
-        {/* School Leadership & Staff Directory (Teachers with class streams and subjects) */}
-        <StaffDirectory
-          onOpenAdminSuite={handleOpenAdminSuite}
-        />
+        {/* 8. School Leadership & Staff Directory (Secured with credentials: only logged-in staff can edit photo & bio) */}
+        <ScrollReveal delay={0.15}>
+          <StaffDirectory
+            onOpenAdminSuite={handleOpenAdminSuite}
+          />
+        </ScrollReveal>
 
-        {/* Online Admission Application Form */}
-        <AdmissionSection
-          preselectedGrade={selectedGradeForApply}
-          onClearPreselected={() => setSelectedGradeForApply('')}
-        />
+        {/* 9. Online Admission Application Form */}
+        <ScrollReveal delay={0.15}>
+          <AdmissionSection
+            preselectedGrade={selectedGradeForApply}
+            onClearPreselected={() => setSelectedGradeForApply('')}
+          />
+        </ScrollReveal>
 
-        {/* Campus Facilities & Learning Environment (features real campus photo) */}
-        <CampusFacilities />
+        {/* 10. Campus Facilities & Learning Environment (features real campus photo) */}
+        <ScrollReveal delay={0.15}>
+          <CampusFacilities />
+        </ScrollReveal>
 
-        {/* Latest School News, Published Bulletins & Academic Calendar */}
-        <NewsAndEvents
-          onOpenAdminSuite={handleOpenAdminSuite}
-        />
+        {/* 11. Latest School News, Published Bulletins & Academic Calendar */}
+        <ScrollReveal delay={0.15}>
+          <NewsAndEvents
+            onOpenAdminSuite={handleOpenAdminSuite}
+          />
+        </ScrollReveal>
 
-        {/* Official Administration Contacts & Directions (Tel: 0788249507) */}
-        <ContactSection />
+        {/* 12. Frequently Asked Questions (Term dates, school supply lists, uniform, lunch program) */}
+        <ScrollReveal delay={0.15}>
+          <FAQSection />
+        </ScrollReveal>
+
+        {/* 13. Official Administration Contacts & Directions (Tel: 0788249507) */}
+        <ScrollReveal delay={0.15}>
+          <ContactSection />
+        </ScrollReveal>
       </main>
 
-      {/* 4. Footer */}
+      {/* Footer */}
       <Footer
         onNavClick={scrollToSection}
         onOpenPortal={handleOpenPortal}
         onOpenApply={handleOpenApply}
       />
 
-      {/* 5. Headteacher Admin Suite Modal (Code: 280508200528) */}
+      {/* Headteacher Admin Suite Modal */}
       {isAdminSuiteOpen && (
         <HeadteacherAdminSuite onClose={() => setIsAdminSuiteOpen(false)} />
       )}
+
+      {/* Interactive Floating Chatbot Widget (School FAQ & Assistance) */}
+      <LiveChatWidget onOpenApply={handleOpenApply} />
     </div>
   );
 }
 
-export default function App() {
+export function App() {
   return (
     <SchoolProvider>
       <SchoolAppContent />
     </SchoolProvider>
   );
 }
+
+export default App;

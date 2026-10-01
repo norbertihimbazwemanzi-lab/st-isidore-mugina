@@ -1,6 +1,7 @@
 import React from 'react';
 import { GraduationCap, MapPin, Phone, Mail, BookOpen, Library } from 'lucide-react';
 import { SCHOOL_INFO } from '../data/schoolData';
+import { useSchool } from '../context/SchoolContext';
 
 interface FooterProps {
   onNavClick: (id: string) => void;
@@ -9,6 +10,8 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavClick, onOpenPortal, onOpenApply }) => {
+  const { schoolLogo } = useSchool();
+
   return (
     <footer className="bg-slate-950 text-slate-400 text-xs border-t border-slate-800">
       {/* Rwandan National Flag subtle aesthetic ribbon */}
@@ -23,9 +26,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavClick, onOpenPortal, onOpen
           {/* Col 1 & 2: School Brand & Identity */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-800 text-white flex items-center justify-center font-bold">
-                <GraduationCap className="w-5 h-5 text-emerald-200" />
-              </div>
+              {schoolLogo ? (
+                <img
+                  src={schoolLogo}
+                  alt={SCHOOL_INFO.name}
+                  className="w-10 h-10 rounded-xl object-contain bg-white p-1 shadow-sm border border-emerald-600/30"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-emerald-800 text-white flex items-center justify-center font-bold">
+                  <GraduationCap className="w-5 h-5 text-emerald-200" />
+                </div>
+              )}
               <div>
                 <span className="text-base font-bold text-white tracking-tight block">
                   {SCHOOL_INFO.name}
@@ -133,6 +144,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavClick, onOpenPortal, onOpen
                   className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors text-left cursor-pointer flex items-center gap-1"
                 >
                   <span>Term Results Checker</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavClick('faq')}
+                  className="text-amber-300 hover:text-amber-200 font-medium transition-colors text-left cursor-pointer flex items-center gap-1"
+                >
+                  <span>FAQ & Supply Lists</span>
                 </button>
               </li>
               <li>

@@ -18,11 +18,12 @@ export const StudentResultChecker: React.FC<StudentResultCheckerProps> = ({
   onOpenAdminSuite,
 }) => {
   const { 
-    students, 
-    loginAdmin, 
-    isAdminAuthenticated, 
-    setNotificationToast 
-  } = useSchool();
+  students, 
+  loginAdmin, 
+  isAdminAuthenticated, 
+  setNotificationToast,
+  schoolLogo,
+} = useSchool();
 
   const [regInput, setRegInput] = useState(initialRegNumber);
   const [queriedResult, setQueriedResult] = useState<StudentResult | null>(
@@ -192,7 +193,7 @@ export const StudentResultChecker: React.FC<StudentResultCheckerProps> = ({
             >
               <Key className="w-3.5 h-3.5" />
               <span>
-                {isAdminAuthenticated ? 'Headteacher Admin Workspace' : 'Headteacher Login (Code: 280508200528)'}
+                {isAdminAuthenticated ? 'Headteacher Admin Workspace' : 'Headteacher Portal'}
               </span>
             </button>
           )}
@@ -214,7 +215,7 @@ export const StudentResultChecker: React.FC<StudentResultCheckerProps> = ({
                   type="text"
                   value={regInput}
                   onChange={(e) => setRegInput(e.target.value)}
-                  placeholder="Enter Student Reg No. (e.g. MUG-2026-P6A-08) or Headteacher Code 280508200528..."
+                  placeholder="Enter Student Registration Number (e.g. MUG-2026-P6A-08)..."
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-800 text-sm text-white placeholder-slate-400 border border-slate-700 rounded-xl focus:outline-none focus:border-emerald-500 transition-all uppercase font-mono font-medium"
                 />
               </div>
@@ -270,14 +271,14 @@ export const StudentResultChecker: React.FC<StudentResultCheckerProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                  {/* Primary Print Result Button for PDF */}
+                  {/* Primary Print / Export to PDF Button */}
                   <button
                     onClick={handlePrint}
-                    className="flex-1 sm:flex-initial px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    title="Generate and print PDF marksheet"
+                    className="flex-1 sm:flex-initial px-4 py-2.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02]"
+                    title="Export viewed student report card as a professional PDF"
                   >
                     <Printer className="w-4 h-4 text-emerald-200" />
-                    <span>Print Result (PDF)</span>
+                    <span>Export to PDF</span>
                   </button>
 
                   {/* Preview Detailed Marksheet Modal Button */}
@@ -304,16 +305,29 @@ export const StudentResultChecker: React.FC<StudentResultCheckerProps> = ({
 
               {/* Official School Header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
-                <div>
-                  <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
-                    {SCHOOL_INFO.status} · {SCHOOL_INFO.churchPartnership}
+                <div className="flex items-center gap-3.5">
+                  {schoolLogo ? (
+                    <img
+                      src={schoolLogo}
+                      alt="Official School Emblem"
+                      className="w-14 h-14 rounded-xl object-contain bg-slate-50 p-1 border border-emerald-600/30 shadow-xs shrink-0"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-emerald-800 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <GraduationCap className="w-6 h-6 text-emerald-200" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+                      {SCHOOL_INFO.status} · {SCHOOL_INFO.churchPartnership}
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
+                      {SCHOOL_INFO.fullName}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Mugina Sector · Kamonyi District · Tel: {SCHOOL_INFO.phonePrimary} · Diocese of Kabgayi
+                    </p>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">
-                    {SCHOOL_INFO.fullName}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Mugina Sector · Kamonyi District · Tel: {SCHOOL_INFO.phonePrimary} · Diocese of Kabgayi
-                  </p>
                 </div>
 
                 <div className="sm:text-right">
@@ -441,10 +455,11 @@ export const StudentResultChecker: React.FC<StudentResultCheckerProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handlePrint}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
+                    title="Export viewed student report card to professional PDF"
                   >
                     <Printer className="w-4 h-4 text-emerald-200" />
-                    <span>Print Result (Save to PDF)</span>
+                    <span>Export to PDF</span>
                   </button>
                 </div>
               </div>

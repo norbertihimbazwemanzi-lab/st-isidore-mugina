@@ -58,6 +58,8 @@ html {
   header,
   nav,
   footer,
+  aside,
+  #home,
   #top-bar,
   #navbar,
   #about,
@@ -69,9 +71,11 @@ html {
   #facilities,
   #news,
   #contact,
+  #faq,
   .no-print,
   button,
-  .print-hide {
+  .print-hide,
+  .print\:hidden {
     display: none !important;
   }
 

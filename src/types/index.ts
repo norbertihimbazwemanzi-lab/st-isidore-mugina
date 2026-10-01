@@ -96,6 +96,8 @@ export interface EventItem {
   description: string;
 }
 
+export type Language = 'en' | 'rw' | 'fr';
+
 export interface StaffMember {
   id: string;
   name: string;
@@ -108,4 +110,6 @@ export interface StaffMember {
   email?: string;
   bio: string;
   avatarInitials: string;
+  photoUrl?: string; // base64 Data URL or remote image URL
+  accessPasscode?: string; // Admin-granted credential for teacher to edit their own profile & photo
 }
