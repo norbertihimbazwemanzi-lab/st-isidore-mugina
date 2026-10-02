@@ -13,16 +13,23 @@ import { CampusFacilities } from './components/CampusFacilities';
 import { NewsAndEvents } from './components/NewsAndEvents';
 import { ContactSection } from './components/ContactSection';
 import { FAQSection } from './components/FAQSection';
+import { Newsletter } from './components/Newsletter';
 import { LiveChatWidget } from './components/LiveChatWidget';
 import { Footer } from './components/Footer';
 import { HeadteacherAdminSuite } from './components/HeadteacherAdminSuite';
+import { UniversalAuthModal } from './components/UniversalAuthModal';
+import { AdminMediaManager } from './components/AdminMediaManager';
+import { StudentPerformanceTrends } from './components/StudentPerformanceTrends';
 import { ScrollReveal } from './components/ScrollReveal';
 import { SchoolProvider, useSchool } from './context/SchoolContext';
+import { Key, Image, ShieldCheck } from 'lucide-react';
 
 function SchoolAppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedGradeForApply, setSelectedGradeForApply] = useState<string>('');
   const [isAdminSuiteOpen, setIsAdminSuiteOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
 
   const { notificationToast, setNotificationToast, isAdminAuthenticated } = useSchool();
 
@@ -73,6 +80,9 @@ function SchoolAppContent() {
         setActiveTab={setActiveTab}
         onOpenPortal={handleOpenPortal}
         onOpenApply={handleOpenApply}
+        onOpenLogin={() => setIsAuthModalOpen(true)}
+        onOpenMediaManager={() => setIsMediaManagerOpen(true)}
+        onOpenAdminSuite={handleOpenAdminSuite}
       />
 
       {/* Main Content Flow with Framer Motion Scroll-Triggered Fade-In Transitions */}
@@ -107,7 +117,7 @@ function SchoolAppContent() {
           <ELearningHub />
         </ScrollReveal>
 
-        {/* 6. Interactive Student Term Results Checker (Real campus background + Headteacher Admin login) */}
+        {/* 6. Interactive Student Term Results Checker & NESA National Exam Verification */}
         <ScrollReveal delay={0.15}>
           <StudentResultChecker
             onOpenAdminSuite={handleOpenAdminSuite}
@@ -146,12 +156,17 @@ function SchoolAppContent() {
           />
         </ScrollReveal>
 
-        {/* 12. Frequently Asked Questions (Term dates, school supply lists, uniform, lunch program) */}
+        {/* 12. Automated School Updates & Gmail Dispatch (Newsletter) */}
+        <ScrollReveal delay={0.15}>
+          <Newsletter />
+        </ScrollReveal>
+
+        {/* 13. Frequently Asked Questions (Term dates, school supply lists, uniform, lunch program) */}
         <ScrollReveal delay={0.15}>
           <FAQSection />
         </ScrollReveal>
 
-        {/* 13. Official Administration Contacts & Directions (Tel: 0788249507) */}
+        {/* 14. Official Administration Contacts & Directions (Tel: 0788249507) */}
         <ScrollReveal delay={0.15}>
           <ContactSection />
         </ScrollReveal>
@@ -162,6 +177,48 @@ function SchoolAppContent() {
         onNavClick={scrollToSection}
         onOpenPortal={handleOpenPortal}
         onOpenApply={handleOpenApply}
+      />
+
+      {/* Floating Administrator Quick-Control Dock when logged in as Admin */}
+      {isAdminAuthenticated && (
+        <div className="fixed bottom-5 left-5 z-40 p-2 sm:p-2.5 rounded-2xl bg-slate-950/95 border border-amber-400/80 shadow-2xl text-slate-200 flex items-center gap-2.5 backdrop-blur-md animate-in slide-in-from-bottom-4">
+          <div className="flex items-center gap-2 pl-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs font-bold text-amber-300 hidden sm:inline">
+              Logged in as Admin: Habiyaremye Charles
+            </span>
+          </div>
+          <div className="h-4 w-px bg-slate-800" />
+          <button
+            onClick={() => setIsMediaManagerOpen(true)}
+            className="px-2.5 py-1 text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-lg border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+            title="Upload, edit & delete images, logo, and export to GitHub"
+          >
+            <Image className="w-3.5 h-3.5 text-amber-400" />
+            <span>Manage Media & Logo</span>
+          </button>
+          <button
+            onClick={handleOpenAdminSuite}
+            className="px-2.5 py-1 text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span>Admin Suite</span>
+          </button>
+        </div>
+      )}
+
+      {/* Universal Login Modal for Admin, Faculty, and Students */}
+      <UniversalAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onOpenAdminSuite={handleOpenAdminSuite}
+        onOpenMediaManager={() => setIsMediaManagerOpen(true)}
+      />
+
+      {/* Administrator Media & Image Manager */}
+      <AdminMediaManager
+        isOpen={isMediaManagerOpen}
+        onClose={() => setIsMediaManagerOpen(false)}
       />
 
       {/* Headteacher Admin Suite Modal */}

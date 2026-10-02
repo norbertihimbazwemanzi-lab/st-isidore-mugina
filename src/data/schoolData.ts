@@ -481,6 +481,54 @@ export const MOCK_STUDENTS: Record<string, StudentResult> = {
     conduct: 'Distinction (19/20 - Tres Bien)',
     attendanceRate: 99,
     classTeacher: 'M. Mugabo Jean Damascene',
+    accessPin: 'ST-MUG-882',
+    termHistory: [
+      {
+        term: 'Term 1',
+        academicYear: '2025 - 2026',
+        percentage: 84.6,
+        classAverage: 68.2,
+        rank: '2nd / 57 Students',
+        attendanceRate: 97,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 88, maxScore: 100, grade: 'A' },
+          { subject: 'Physics', score: 86, maxScore: 100, grade: 'A' },
+          { subject: 'Chemistry', score: 82, maxScore: 100, grade: 'B+' },
+          { subject: 'Biology', score: 80, maxScore: 100, grade: 'B+' },
+          { subject: 'Languages', score: 87, maxScore: 100, grade: 'A' },
+        ]
+      },
+      {
+        term: 'Term 2',
+        academicYear: '2025 - 2026',
+        percentage: 89.2,
+        classAverage: 70.4,
+        rank: '1st / 57 Students',
+        attendanceRate: 99,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 94, maxScore: 100, grade: 'A' },
+          { subject: 'Physics', score: 91, maxScore: 100, grade: 'A' },
+          { subject: 'Chemistry', score: 88, maxScore: 100, grade: 'A' },
+          { subject: 'Biology', score: 86, maxScore: 100, grade: 'A' },
+          { subject: 'Languages', score: 91, maxScore: 100, grade: 'A' },
+        ]
+      },
+      {
+        term: 'Term 3 (Forecast)',
+        academicYear: '2025 - 2026',
+        percentage: 92.5,
+        classAverage: 72.1,
+        rank: '1st / 57 Students',
+        attendanceRate: 100,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 96, maxScore: 100, grade: 'A' },
+          { subject: 'Physics', score: 93, maxScore: 100, grade: 'A' },
+          { subject: 'Chemistry', score: 90, maxScore: 100, grade: 'A' },
+          { subject: 'Biology', score: 89, maxScore: 100, grade: 'A' },
+          { subject: 'Languages', score: 94, maxScore: 100, grade: 'A' },
+        ]
+      },
+    ],
     subjects: [
       { name: 'Mathematics', code: 'MTH301', maxScore: 100, score: 94, grade: 'A', remarks: 'Outstanding analytical skills' },
       { name: 'Physics', code: 'PHY301', maxScore: 100, score: 91, grade: 'A', remarks: 'Superb mechanics and circuits' },
@@ -507,6 +555,51 @@ export const MOCK_STUDENTS: Record<string, StudentResult> = {
     conduct: 'Excellent (18/20)',
     attendanceRate: 96,
     classTeacher: 'Mme. Mukankusi Vestine',
+    accessPin: 'ST-MUG-715',
+    termHistory: [
+      {
+        term: 'Term 1',
+        academicYear: '2025 - 2026',
+        percentage: 78.0,
+        classAverage: 65.5,
+        rank: '8th / 55 Students',
+        attendanceRate: 94,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 80, maxScore: 100, grade: 'B+' },
+          { subject: 'Physics & Chem', score: 76, maxScore: 100, grade: 'B' },
+          { subject: 'Biology', score: 75, maxScore: 100, grade: 'B' },
+          { subject: 'Languages', score: 81, maxScore: 100, grade: 'B+' },
+        ]
+      },
+      {
+        term: 'Term 2',
+        academicYear: '2025 - 2026',
+        percentage: 83.5,
+        classAverage: 67.2,
+        rank: '4th / 55 Students',
+        attendanceRate: 96,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 85, maxScore: 100, grade: 'A' },
+          { subject: 'Physics & Chem', score: 82, maxScore: 100, grade: 'B+' },
+          { subject: 'Biology', score: 81, maxScore: 100, grade: 'B+' },
+          { subject: 'Languages', score: 86, maxScore: 100, grade: 'A' },
+        ]
+      },
+      {
+        term: 'Term 3 (Forecast)',
+        academicYear: '2025 - 2026',
+        percentage: 87.0,
+        classAverage: 69.0,
+        rank: '3rd / 55 Students',
+        attendanceRate: 98,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 88, maxScore: 100, grade: 'A' },
+          { subject: 'Physics & Chem', score: 85, maxScore: 100, grade: 'A' },
+          { subject: 'Biology', score: 84, maxScore: 100, grade: 'B+' },
+          { subject: 'Languages', score: 90, maxScore: 100, grade: 'A' },
+        ]
+      }
+    ],
     subjects: [
       { name: 'Mathematics', code: 'MTH101', maxScore: 100, score: 85, grade: 'A', remarks: 'Solid algebraic foundation' },
       { name: 'Physics & Chemistry', code: 'SCI101', maxScore: 100, score: 82, grade: 'B+', remarks: 'Active in science demos' },
@@ -531,6 +624,51 @@ export const MOCK_STUDENTS: Record<string, StudentResult> = {
     conduct: 'Distinction (20/20)',
     attendanceRate: 100,
     classTeacher: 'M. Habineza Pierre',
+    accessPin: 'ST-MUG-304',
+    termHistory: [
+      {
+        term: 'Term 1',
+        academicYear: '2025 - 2026',
+        percentage: 89.5,
+        classAverage: 69.8,
+        rank: '2nd / 55 Students',
+        attendanceRate: 98,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 92, maxScore: 100, grade: 'A' },
+          { subject: 'Science & SET', score: 90, maxScore: 100, grade: 'A' },
+          { subject: 'Social Studies', score: 88, maxScore: 100, grade: 'A' },
+          { subject: 'Languages', score: 89, maxScore: 100, grade: 'A' },
+        ]
+      },
+      {
+        term: 'Term 2',
+        academicYear: '2025 - 2026',
+        percentage: 93.4,
+        classAverage: 71.3,
+        rank: '1st / 55 Students',
+        attendanceRate: 100,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 96, maxScore: 100, grade: 'A' },
+          { subject: 'Science & SET', score: 94, maxScore: 100, grade: 'A' },
+          { subject: 'Social Studies', score: 91, maxScore: 100, grade: 'A' },
+          { subject: 'Languages', score: 93, maxScore: 100, grade: 'A' },
+        ]
+      },
+      {
+        term: 'Term 3 (Target)',
+        academicYear: '2025 - 2026',
+        percentage: 96.0,
+        classAverage: 73.0,
+        rank: '1st / 55 Students',
+        attendanceRate: 100,
+        subjectsSummary: [
+          { subject: 'Mathematics', score: 98, maxScore: 100, grade: 'A' },
+          { subject: 'Science & SET', score: 96, maxScore: 100, grade: 'A' },
+          { subject: 'Social Studies', score: 94, maxScore: 100, grade: 'A' },
+          { subject: 'Languages', score: 96, maxScore: 100, grade: 'A' },
+        ]
+      }
+    ],
     subjects: [
       { name: 'Mathematics', code: 'PMTH601', maxScore: 100, score: 96, grade: 'A', remarks: 'Flawless calculation and speed' },
       { name: 'Science & Elementary Tech (SET)', code: 'PSET601', maxScore: 100, score: 94, grade: 'A', remarks: 'Exceptional technology concepts' },
@@ -554,6 +692,33 @@ export const MOCK_STUDENTS: Record<string, StudentResult> = {
     conduct: 'Very Good (17/20)',
     attendanceRate: 95,
     classTeacher: 'Mme. Uwimana Chantal',
+    accessPin: 'ST-MUG-912',
+    termHistory: [
+      {
+        term: 'Term 1',
+        academicYear: '2025 - 2026',
+        percentage: 75.4,
+        classAverage: 66.0,
+        rank: '9th / 49 Students',
+        attendanceRate: 92,
+      },
+      {
+        term: 'Term 2',
+        academicYear: '2025 - 2026',
+        percentage: 81.6,
+        classAverage: 68.5,
+        rank: '5th / 49 Students',
+        attendanceRate: 95,
+      },
+      {
+        term: 'Term 3 (Target)',
+        academicYear: '2025 - 2026',
+        percentage: 85.0,
+        classAverage: 70.0,
+        rank: '4th / 49 Students',
+        attendanceRate: 97,
+      }
+    ],
     subjects: [
       { name: 'Mathematics', code: 'PMTH401', maxScore: 100, score: 82, grade: 'B+', remarks: 'Good multiplication & fractions' },
       { name: 'Science & Technology', code: 'PSET401', maxScore: 100, score: 84, grade: 'B+', remarks: 'Loves science experiments' },
@@ -577,6 +742,12 @@ export const MOCK_STUDENTS: Record<string, StudentResult> = {
     conduct: 'Excellent (19/20)',
     attendanceRate: 98,
     classTeacher: 'Mme. Nyiraneza Marie Grace',
+    accessPin: 'ST-MUG-105',
+    termHistory: [
+      { term: 'Term 1', academicYear: '2025 - 2026', percentage: 86.0, classAverage: 74.0, rank: 'Developing', attendanceRate: 96 },
+      { term: 'Term 2', academicYear: '2025 - 2026', percentage: 90.0, classAverage: 76.5, rank: 'Graduating to P1', attendanceRate: 98 },
+      { term: 'Term 3 (Target)', academicYear: '2025 - 2026', percentage: 93.0, classAverage: 78.0, rank: 'Ready for P1', attendanceRate: 99 },
+    ],
     subjects: [
       { name: 'Early Language & Phonics', code: 'NUR01', maxScore: 100, score: 92, grade: 'A', remarks: 'Recognizes letters and sounds' },
       { name: 'Numbers & Shapes', code: 'NUR02', maxScore: 100, score: 90, grade: 'A', remarks: 'Counts 1 to 50 with confidence' },

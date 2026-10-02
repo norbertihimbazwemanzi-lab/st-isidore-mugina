@@ -158,6 +158,24 @@ export const StaffDirectory: React.FC<StaffDirectoryProps> = ({ onOpenAdminSuite
           </div>
         )}
 
+        {/* Security Policy Information Banner for all visitors */}
+        <div className="mb-6 p-3.5 rounded-xl bg-slate-100 border border-slate-300 text-xs text-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Strict Security Policy:</strong> Public visitors cannot add or change profile pictures. Only authenticated faculty members with admin-issued credentials (Registered Admin: <strong>0788249507</strong>) can upload photos and edit their biographies.
+            </span>
+          </div>
+          {!currentAuthenticatedStaff && (
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="text-emerald-800 font-bold hover:underline shrink-0 text-xs cursor-pointer"
+            >
+              Faculty Login →
+            </button>
+          )}
+        </div>
+
         {/* Staff Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {teachers.map((staff) => {

@@ -3,7 +3,7 @@ import {
   Users, Calendar, Bell, GraduationCap, Plus, Trash2, Edit2, 
   Save, X, CheckCircle2, AlertCircle, BookOpen, Clock, MapPin, 
   Tag, Phone, Mail, Award, Lock, LogOut, Send, UserCheck, ShieldCheck, Key, FileText,
-  TrendingUp, BarChart3, Image as ImageIcon, Upload, Camera, RefreshCw
+  TrendingUp, BarChart3, Image as ImageIcon, Upload, Camera, RefreshCw, Download
 } from 'lucide-react';
 import { useSchool, HEADTEACHER_ADMIN_CODE } from '../context/SchoolContext';
 import { StudentResult, StaffMember } from '../types';
@@ -33,11 +33,15 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
     students,
     updateStudentMarks,
     addStudent,
+    assignStudentPin,
+    assignTeacherPasscode,
     libraryDocuments,
     addLibraryDocument,
     deleteLibraryDocument,
     schoolLogo,
     updateSchoolLogo,
+    saveAllToBackend,
+    exportDataBackup,
   } = useSchool();
 
   const [activeTab, setActiveTab] = useState<'analytics' | 'teachers' | 'calendar' | 'news' | 'marks' | 'library' | 'branding'>('analytics');
@@ -877,9 +881,24 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                                 Tel: {tr.phone || '0788249507'}
                               </div>
 
-                              <div className="mt-2 flex items-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/50 w-fit">
-                                <Key className="w-3 h-3 text-amber-400 shrink-0" />
-                                <span>Credential: <strong>{tr.accessPasscode || 'TEACH-2026'}</strong></span>
+                              <div className="mt-2 flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-[11px] font-mono text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/50 w-fit">
+                                  <Key className="w-3 h-3 text-amber-400 shrink-0" />
+                                  <span>Credential: <strong>{tr.accessPasscode || 'TEACH-2026'}</strong></span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newPass = prompt(`Set new login password for ${tr.name}:`, tr.accessPasscode || 'TEACH-2026');
+                                    if (newPass && newPass.trim()) {
+                                      assignTeacherPasscode(tr.id, newPass.trim());
+                                    }
+                                  }}
+                                  className="text-[10px] text-amber-400 hover:text-amber-200 underline cursor-pointer"
+                                  title="Change staff login password"
+                                >
+                                  Change PIN
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -1221,7 +1240,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                             <th className="py-3 px-4">Class Stream</th>
                             <th className="py-3 px-4 text-center">Score %</th>
                             <th className="py-3 px-4">Standing</th>
-                            <th className="py-3 px-4">Conduct</th>
+                            <th className="py-3 px-4 text-center">Portal PIN (Given by Admin)</th>
                             <th className="py-3 px-4">Class Mentor</th>
                             <th className="py-3 px-4 text-right">Actions</th>
                           </tr>
@@ -1244,8 +1263,20 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                               <td className="py-3 px-4 text-slate-300">
                                 {st.rank}
                               </td>
-                              <td className="py-3 px-4 text-slate-300">
-                                {st.conduct}
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newPin = prompt(`Set Portal Login PIN for ${st.studentName} (${st.regNumber}):`, st.accessPin || 'MUGINA2026');
+                                    if (newPin && newPin.trim()) {
+                                      assignStudentPin(st.regNumber, newPin.trim());
+                                    }
+                                  }}
+                                  className="font-mono text-xs px-2.5 py-1 rounded bg-amber-950/70 border border-amber-500/40 text-amber-300 hover:bg-amber-900 transition-colors cursor-pointer"
+                                  title="Click to change student's portal access password"
+                                >
+                                  🔑 {st.accessPin || 'MUGINA2026'}
+                                </button>
                               </td>
                               <td className="py-3 px-4 text-slate-400">
                                 {st.classTeacher}
@@ -1253,7 +1284,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                               <td className="py-3 px-4 text-right">
                                 <button
                                   onClick={() => setEditingStudent({ ...st })}
-                                  className="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-semibold inline-flex items-center gap-1"
+                                  className="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-semibold inline-flex items-center gap-1 cursor-pointer"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
                                   <span>Edit Marks</span>
@@ -1490,6 +1521,7 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                                 const dataUrl = ev.target?.result as string;
                                 if (dataUrl) {
                                   updateSchoolLogo(dataUrl);
+                                  if (saveAllToBackend) saveAllToBackend({ schoolLogo: dataUrl });
                                 }
                               };
                               reader.readAsDataURL(file);
@@ -1507,20 +1539,35 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                           {schoolLogo && (
                             <button
                               type="button"
-                              onClick={() => updateSchoolLogo(null)}
+                              onClick={() => {
+                                updateSchoolLogo(null);
+                                if (saveAllToBackend) saveAllToBackend({ schoolLogo: null });
+                              }}
                               className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-800/40 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
                             >
                               <RefreshCw className="w-3.5 h-3.5 text-rose-400" />
                               <span>Reset to Default School Crest</span>
                             </button>
                           )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (exportDataBackup) exportDataBackup();
+                            }}
+                            className="w-full py-2.5 px-4 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                            title="Export website data JSON to commit to GitHub"
+                          >
+                            <Download className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Export School Config JSON for GitHub</span>
+                          </button>
                         </div>
 
                         <div className="text-[11px] text-slate-400 space-y-1.5 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
-                          <span className="font-bold text-slate-300 block">Recommended Specifications:</span>
-                          <p>• Transparent PNG, SVG, or crisp JPG.</p>
-                          <p>• Square or circular layout (recommended 256×256 or 512×512).</p>
-                          <p>• File is stored directly in browser local storage and persists across reloads.</p>
+                          <span className="font-bold text-slate-300 block">Why Logo Resets on GitHub & How to Keep it:</span>
+                          <p>• When pushing to GitHub Pages, browser <code>localStorage</code> stays on your computer and is empty for other visitors.</p>
+                          <p>• Our Express server (<code>server.ts</code>) automatically saves your uploaded logo to <code>persistedSchoolData.json</code>.</p>
+                          <p>• For static GitHub hosting, click <strong>Export School Config JSON for GitHub</strong> above and commit the file!</p>
                         </div>
                       </div>
                     </div>
@@ -1603,6 +1650,35 @@ export const HeadteacherAdminSuite: React.FC<HeadteacherAdminSuiteProps> = ({ on
                     className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono"
                   />
                 </div>
+              </div>
+
+              {/* Student Portal Passcode given by Admin */}
+              <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/40">
+                <label className="block text-amber-300 mb-1 font-bold">
+                  Student Portal Access PIN (Given by Admin to Student/Parent):
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editingStudent.accessPin || 'MUGINA2026'}
+                    onChange={(e) => setEditingStudent({ ...editingStudent, accessPin: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-slate-900 border border-amber-500/50 rounded-lg text-amber-300 font-mono font-bold"
+                    placeholder="e.g. ST-MUG-882 or MUGINA2026"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const randomCode = `ST-MUG-${Math.floor(100 + Math.random() * 900)}`;
+                      setEditingStudent({ ...editingStudent, accessPin: randomCode });
+                    }}
+                    className="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg font-semibold whitespace-nowrap cursor-pointer"
+                  >
+                    Generate PIN
+                  </button>
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  The student logs into the portal using their Registration Number ({editingStudent.regNumber}) and this PIN.
+                </span>
               </div>
 
               <div>

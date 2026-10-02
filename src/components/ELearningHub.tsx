@@ -3,7 +3,7 @@ import {
   Search, BookOpen, Download, FileText, CheckCircle2, 
   Eye, X, Library, AlertCircle, Plus, Upload, Printer, 
   ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw, 
-  Sparkles, Check, Trash2, Calendar, User, Tag 
+  Sparkles, Check, Trash2, Calendar, User, Tag, Lock, ShieldCheck 
 } from 'lucide-react';
 import { EResource, PDFDocumentPage } from '../types';
 import { useSchool } from '../context/SchoolContext';
@@ -14,8 +14,11 @@ export const ELearningHub: React.FC = () => {
     libraryDocuments, 
     addLibraryDocument, 
     deleteLibraryDocument, 
-    isAdminAuthenticated 
+    isAdminAuthenticated,
+    currentAuthenticatedStaff,
   } = useSchool();
+
+  const isStaffLoggedIn = isAdminAuthenticated || !!currentAuthenticatedStaff;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -233,15 +236,40 @@ export const ELearningHub: React.FC = () => {
             </p>
           </div>
 
-          {/* Action Button: Insert / Upload PDF Document */}
-          <div className="shrink-0 flex items-center gap-3">
-            <button
-              onClick={() => setIsInsertModalOpen(true)}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer border border-emerald-400/40"
-            >
-              <Upload className="w-4 h-4" />
-              <span>Insert / Upload PDF Document</span>
-            </button>
+          {/* Action Button: Staff-Protected Upload Area */}
+          <div className="shrink-0 flex flex-wrap items-center gap-2.5">
+            {isStaffLoggedIn ? (
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-emerald-300 bg-emerald-950/80 border border-emerald-600/50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Faculty: <strong>{currentAuthenticatedStaff ? currentAuthenticatedStaff.name : 'Headteacher Admin'}</strong></span>
+                </span>
+                <button
+                  onClick={() => {
+                    if (currentAuthenticatedStaff) {
+                      setDocForm(prev => ({
+                        ...prev,
+                        uploadedBy: currentAuthenticatedStaff.name,
+                      }));
+                    }
+                    setIsInsertModalOpen(true);
+                  }}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer border border-emerald-400/40 hover:scale-[1.02]"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Upload Lesson Plan / Guide (PDF)</span>
+                </button>
+              </div>
+            ) : (
+              <a
+                href="#staff"
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold rounded-xl border border-slate-700 transition-colors flex items-center gap-2 shadow-xs"
+                title="Only teachers and staff with official credentials can upload curriculum resources"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Staff Login to Upload Plans</span>
+              </a>
+            )}
           </div>
         </div>
 
@@ -367,11 +395,11 @@ export const ELearningHub: React.FC = () => {
                     <Download className="w-3.5 h-3.5" />
                   </button>
 
-                  {isAdminAuthenticated && (
+                  {(isAdminAuthenticated || (currentAuthenticatedStaff && res.uploadedBy?.includes(currentAuthenticatedStaff.name))) && (
                     <button
                       onClick={() => deleteLibraryDocument(res.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 transition-colors"
-                      title="Remove document from library (Admin)"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/50 transition-colors"
+                      title="Remove document from library"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

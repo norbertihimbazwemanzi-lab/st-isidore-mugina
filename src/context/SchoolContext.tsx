@@ -47,10 +47,11 @@ interface SchoolContextType {
   addEvent: (eventItem: Omit<EventItem, 'id'>) => void;
   deleteEvent: (id: string) => void;
 
-  // Students & Marks (Add, Edit)
+  // Students & Marks (Add, Edit, Credentials)
   students: Record<string, StudentResult>;
   updateStudentMarks: (regNumber: string, updated: StudentResult) => void;
   addStudent: (student: StudentResult) => void;
+  assignStudentPin: (regNumber: string, newPin: string) => void;
 
   // Digital Library / E-Learning Documents (Read, Insert/Upload, Delete)
   libraryDocuments: EResource[];
@@ -60,11 +61,17 @@ interface SchoolContextType {
   // Global Toast
   notificationToast: string | null;
   setNotificationToast: (msg: string | null) => void;
+
+  // Server-Side Data Persistence & GitHub Sync
+  saveAllToBackend: (partialData?: Record<string, any>) => Promise<boolean>;
+  exportDataBackup: () => void;
+  isBackendConnected: boolean;
 }
 
 const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
 
-export const HEADTEACHER_ADMIN_CODE = '280508200528';
+export const HEADTEACHER_ADMIN_USER = '280508200528';
+export const HEADTEACHER_ADMIN_CODE = '@0798744704';
 
 const loadStorage = <T,>(key: string, fallback: T): T => {
   try {
@@ -124,12 +131,35 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     showToast(logoUrl ? 'School website logo updated successfully!' : 'Reset to default school crest.');
   };
 
-  // Sync state to localStorage
+  const [isBackendConnected, setIsBackendConnected] = useState(false);
+
+  // Sync state to localStorage & fetch server persisted data on boot
   useEffect(() => {
+    // 1. Check remembered admin login
     try {
-      localStorage.setItem('gs_mugina_teachers', JSON.stringify(teachers));
+      if (localStorage.getItem('gs_mugina_remember_admin') === 'true') {
+        setIsAdminAuthenticated(true);
+      }
     } catch {}
-  }, [teachers]);
+
+    // 2. Fetch server-persisted data from backend (so all users across devices see updates)
+    fetch('/api/school-data')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((serverData) => {
+        if (serverData && typeof serverData === 'object' && Object.keys(serverData).length > 0) {
+          setIsBackendConnected(true);
+          if (serverData.schoolLogo !== undefined) setSchoolLogoState(serverData.schoolLogo);
+          if (Array.isArray(serverData.teachers) && serverData.teachers.length > 0) setTeachers(serverData.teachers);
+          if (Array.isArray(serverData.news) && serverData.news.length > 0) setNews(serverData.news);
+          if (Array.isArray(serverData.events) && serverData.events.length > 0) setEvents(serverData.events);
+          if (serverData.students && typeof serverData.students === 'object') setStudents(serverData.students);
+          if (Array.isArray(serverData.libraryDocuments) && serverData.libraryDocuments.length > 0) setLibraryDocuments(serverData.libraryDocuments);
+        }
+      })
+      .catch(() => {
+        setIsBackendConnected(false);
+      });
+  }, []);
 
   useEffect(() => {
     try {
@@ -174,7 +204,8 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const loginAdmin = (code: string): boolean => {
     setAdminCodeError(null);
-    if (code.trim() === HEADTEACHER_ADMIN_CODE) {
+    const clean = code.trim();
+    if (clean === HEADTEACHER_ADMIN_CODE || clean === '0798744704') {
       setIsAdminAuthenticated(true);
       showToast('Authenticated as Headteacher Habiyaremye Charles (Administrator)');
       return true;
@@ -391,6 +422,19 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     showToast(`Enrolled ${newStudent.studentName} into ${newStudent.stream}!`);
   };
 
+  const assignStudentPin = (regNumber: string, newPin: string) => {
+    const reg = regNumber.toUpperCase();
+    if (!students[reg]) return;
+    setStudents((prev) => ({
+      ...prev,
+      [reg]: {
+        ...prev[reg],
+        accessPin: newPin.trim(),
+      },
+    }));
+    showToast(`Assigned new portal access PIN to ${students[reg].studentName} (${reg})!`);
+  };
+
   const addLibraryDocument = (docData: Omit<EResource, 'id' | 'downloads'>) => {
     const newDoc: EResource = {
       ...docData,
@@ -404,6 +448,54 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const deleteLibraryDocument = (id: string) => {
     setLibraryDocuments((prev) => prev.filter((d) => d.id !== id));
     showToast('Document removed from digital library.');
+  };
+
+  const saveAllToBackend = async (partialData?: Record<string, any>): Promise<boolean> => {
+    try {
+      const payload = {
+        schoolLogo,
+        teachers,
+        news,
+        events,
+        students,
+        libraryDocuments,
+        ...(partialData || {}),
+      };
+      const res = await fetch('/api/school-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setIsBackendConnected(true);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const exportDataBackup = () => {
+    const backup = {
+      schoolName: 'GS St Isidore Mugina',
+      schoolLogo,
+      teachers,
+      news,
+      events,
+      students,
+      libraryDocuments,
+      exportedAt: new Date().toISOString(),
+      registeredAdmin: '0788249507 (Habiyaremye Charles)',
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `gs-mugina-school-data-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded website configuration JSON for GitHub repository!');
   };
 
   return (
@@ -437,11 +529,15 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         students,
         updateStudentMarks,
         addStudent,
+        assignStudentPin,
         libraryDocuments,
         addLibraryDocument,
         deleteLibraryDocument,
         notificationToast,
         setNotificationToast,
+        saveAllToBackend,
+        exportDataBackup,
+        isBackendConnected,
       }}
     >
       {children}

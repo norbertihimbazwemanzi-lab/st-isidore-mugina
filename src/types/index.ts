@@ -51,6 +51,21 @@ export interface EResource {
   pdfDataUrl?: string; // base64 Data URL or blob URL for uploaded PDF
 }
 
+export interface StudentTermHistory {
+  term: string; // e.g. "Term 1", "Term 2", "Term 3"
+  academicYear: string;
+  percentage: number;
+  classAverage: number;
+  rank: string;
+  attendanceRate: number;
+  subjectsSummary?: {
+    subject: string;
+    score: number;
+    maxScore: number;
+    grade: string;
+  }[];
+}
+
 export interface StudentResult {
   regNumber: string;
   studentName: string;
@@ -64,6 +79,8 @@ export interface StudentResult {
   conduct: string;
   attendanceRate: number;
   classTeacher: string;
+  accessPin?: string; // Admin-assigned student credential
+  termHistory?: StudentTermHistory[];
   subjects: {
     name: string;
     code: string;

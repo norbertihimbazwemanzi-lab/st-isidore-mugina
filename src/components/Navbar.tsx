@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Menu, X, GraduationCap, UserCheck, ArrowRight } from 'lucide-react';
+import { 
+  Menu, X, GraduationCap, UserCheck, ArrowRight, 
+  Lock, Key, Image, ShieldCheck 
+} from 'lucide-react';
 import { useSchool } from '../context/SchoolContext';
 
 interface NavbarProps {
@@ -7,6 +10,9 @@ interface NavbarProps {
   setActiveTab: (tab: string) => void;
   onOpenPortal: () => void;
   onOpenApply: () => void;
+  onOpenLogin?: () => void;
+  onOpenMediaManager?: () => void;
+  onOpenAdminSuite?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -14,9 +20,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   onOpenPortal,
   onOpenApply,
+  onOpenLogin,
+  onOpenMediaManager,
+  onOpenAdminSuite,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { schoolLogo } = useSchool();
+  const { schoolLogo, isAdminAuthenticated, currentAuthenticatedStaff } = useSchool();
 
   // Navigation Links matching user specification:
   // home, about, classes, e-learning, school fees, staff, admission, faq, contact, result portal, apply online
@@ -77,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
 
           {/* Desktop Navigation Links: Home, About, Classes, E-Learning, School Fees, Staff, Admission, FAQ, Contact */}
-          <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5 text-xs lg:text-[13px] font-medium text-slate-600">
+          <nav className="hidden xl:flex items-center gap-3 2xl:gap-4 text-xs lg:text-[13px] font-medium text-slate-600">
             {primaryNavLinks.map((link) => (
               <button
                 key={link.id}
@@ -96,8 +105,46 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
           </nav>
 
-          {/* Action Links: Result Portal & Apply Online */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
+          {/* Action Links & Authentication Controls */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
+            {/* Admin Active Controls */}
+            {isAdminAuthenticated ? (
+              <div className="flex items-center gap-1.5">
+                {onOpenMediaManager && (
+                  <button
+                    onClick={onOpenMediaManager}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                    title="Upload and edit images, school logo, and export to GitHub"
+                  >
+                    <Image className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Media & Logo</span>
+                  </button>
+                )}
+                {onOpenAdminSuite && (
+                  <button
+                    onClick={onOpenAdminSuite}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                    title="Headteacher Administration Suite"
+                  >
+                    <Key className="w-3.5 h-3.5 text-slate-950" />
+                    <span>Admin Active</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              /* Universal Login Trigger */
+              onOpenLogin && (
+                <button
+                  onClick={onOpenLogin}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg transition-colors cursor-pointer"
+                  title="Universal Login for Admin, Teachers, and Students"
+                >
+                  <Lock className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Login</span>
+                </button>
+              )
+            )}
+
             {/* Result Portal */}
             <button
               onClick={() => {
@@ -126,11 +173,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Mobile Menu Toggle Button */}
           <div className="flex items-center gap-2 xl:hidden">
+            {onOpenLogin && (
+              <button
+                onClick={onOpenLogin}
+                className="px-2 py-1 text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-300 rounded-md flex items-center gap-1"
+              >
+                <Lock className="w-3 h-3 text-slate-600" />
+                <span>{isAdminAuthenticated ? 'Admin' : 'Login'}</span>
+              </button>
+            )}
+
             <button
               onClick={onOpenPortal}
-              className="lg:hidden px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-300 rounded-md"
+              className="lg:hidden px-2.5 py-1 text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-300 rounded-md"
             >
-              Result Portal
+              Portal
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -163,6 +220,39 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             ))}
           </div>
+
+          {/* Admin Controls in Mobile Drawer */}
+          {isAdminAuthenticated && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-xs">
+              <span className="font-bold text-amber-900 block">Administrator Tools:</span>
+              <div className="grid grid-cols-2 gap-2">
+                {onOpenMediaManager && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenMediaManager();
+                    }}
+                    className="p-2 bg-white text-slate-900 font-semibold rounded-lg border border-amber-300 text-center flex items-center justify-center gap-1"
+                  >
+                    <Image className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Media & Logo</span>
+                  </button>
+                )}
+                {onOpenAdminSuite && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAdminSuite();
+                    }}
+                    className="p-2 bg-amber-400 text-slate-950 font-bold rounded-lg text-center flex items-center justify-center gap-1"
+                  >
+                    <Key className="w-3.5 h-3.5" />
+                    <span>Admin Suite</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Mobile Bottom Action Items: Result Portal & Apply Online */}
           <div className="pt-3 border-t border-slate-200 grid grid-cols-2 gap-2">
