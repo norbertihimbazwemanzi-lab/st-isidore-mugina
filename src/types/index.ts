@@ -130,3 +130,32 @@ export interface StaffMember {
   photoUrl?: string; // base64 Data URL or remote image URL
   accessPasscode?: string; // Admin-granted credential for teacher to edit their own profile & photo
 }
+
+export type AdminActionCategory =
+  | 'enroll_student'
+  | 'update_marks'
+  | 'delete_student'
+  | 'update_credentials'
+  | 'add_teacher'
+  | 'edit_teacher'
+  | 'delete_teacher'
+  | 'publish_news'
+  | 'delete_news'
+  | 'add_event'
+  | 'delete_event'
+  | 'upload_media'
+  | 'system_sync'
+  | 'library_doc';
+
+export interface AdminLogEntry {
+  id: string;
+  timestamp: string; // Formatted date string e.g. "Oct 3, 2026, 09:20 AM"
+  isoDate: string; // ISO 8601 string for accurate sorting
+  adminName: string; // e.g. "Habiyaremye Charles (Headteacher)"
+  category: AdminActionCategory;
+  title: string;
+  description: string;
+  targetId?: string; // e.g. student regNumber or teacher ID
+  ipOrDevice?: string;
+}
+

@@ -124,6 +124,13 @@ function SchoolAppContent() {
           />
         </ScrollReveal>
 
+        {/* 6b. Multi-Term Student Performance Trends (Recharts) */}
+        <ScrollReveal delay={0.15}>
+          <StudentPerformanceTrends
+            onOpenPortal={handleOpenPortal}
+          />
+        </ScrollReveal>
+
         {/* 7. Day School Fees & School Feeding Calculator (Gahunda yo kugaburira abana) */}
         <ScrollReveal delay={0.15}>
           <FeeStructureCalculator />

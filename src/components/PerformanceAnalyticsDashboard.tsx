@@ -7,13 +7,18 @@ import {
 import { 
   TrendingUp, Award, Users, BookOpen, CheckCircle2, 
   Download, Printer, Filter, Calendar, Sparkles, ArrowUpRight, 
-  GraduationCap, HelpCircle, Layers 
+  GraduationCap, HelpCircle, Layers, ShieldCheck, Clock, Key,
+  UserPlus, FileText, Trash2, Globe, Database, ArrowRight, UserCheck, RefreshCw
 } from 'lucide-react';
 import { useSchool } from '../context/SchoolContext';
 import { StudentResult } from '../types';
 
-export const PerformanceAnalyticsDashboard: React.FC = () => {
-  const { students } = useSchool();
+interface PerformanceAnalyticsDashboardProps {
+  onNavigateTab?: (tab: string) => void;
+}
+
+export const PerformanceAnalyticsDashboard: React.FC<PerformanceAnalyticsDashboardProps> = ({ onNavigateTab }) => {
+  const { students, adminActivityLogs, exportDataBackup } = useSchool();
   const studentList = useMemo(() => Object.values(students), [students]);
 
   // Filters
@@ -625,6 +630,140 @@ export const PerformanceAnalyticsDashboard: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* ================= RECENT ADMIN ACTIVITY LOG (SCROLLABLE CRUD INTERCEPTOR VIEW) ================= */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                Live Admin Activity & Audit Interceptor
+              </span>
+            </div>
+            <h4 className="text-base font-bold text-white mt-0.5">
+              Recent Headteacher CRUD Actions ({adminActivityLogs.length})
+            </h4>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Real-time audit trail capturing additions, edits, removals, credentials, and publications by Administrator <strong>Habiyaremye Charles</strong>.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onNavigateTab && (
+              <button
+                onClick={() => onNavigateTab('logs')}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Full Audit Trail</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Scrollable List of Recent Actions */}
+        <div className="max-h-72 overflow-y-auto space-y-2 pr-1.5 scrollbar-thin scrollbar-thumb-slate-700">
+          {adminActivityLogs.length === 0 ? (
+            <div className="py-8 text-center text-slate-500 text-xs">
+              No recent administrative actions recorded.
+            </div>
+          ) : (
+            adminActivityLogs.map((log) => {
+              const getActionTypeBadge = (cat: string) => {
+                switch (cat) {
+                  case 'enroll_student':
+                    return { label: 'ENROLL_STUDENT', bg: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40', icon: <UserPlus className="w-3 h-3 text-emerald-400" /> };
+                  case 'update_marks':
+                    return { label: 'UPDATE_MARKS', bg: 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40', icon: <FileText className="w-3 h-3 text-cyan-400" /> };
+                  case 'delete_student':
+                    return { label: 'DELETE_STUDENT', bg: 'bg-rose-950/80 text-rose-300 border-rose-500/40', icon: <Trash2 className="w-3 h-3 text-rose-400" /> };
+                  case 'update_credentials':
+                    return { label: 'ASSIGN_CREDENTIALS', bg: 'bg-amber-950/80 text-amber-300 border-amber-500/40', icon: <Key className="w-3 h-3 text-amber-400" /> };
+                  case 'add_teacher':
+                  case 'edit_teacher':
+                  case 'delete_teacher':
+                    return { label: 'STAFF_CRUD', bg: 'bg-purple-950/80 text-purple-300 border-purple-500/40', icon: <UserCheck className="w-3 h-3 text-purple-400" /> };
+                  case 'publish_news':
+                  case 'delete_news':
+                    return { label: 'NEWS_BULLETIN', bg: 'bg-blue-950/80 text-blue-300 border-blue-500/40', icon: <Globe className="w-3 h-3 text-blue-400" /> };
+                  case 'add_event':
+                  case 'delete_event':
+                    return { label: 'CALENDAR_EVENT', bg: 'bg-teal-950/80 text-teal-300 border-teal-500/40', icon: <Calendar className="w-3 h-3 text-teal-400" /> };
+                  default:
+                    return { label: 'SYSTEM_SYNC', bg: 'bg-slate-800 text-slate-300 border-slate-700', icon: <Database className="w-3 h-3 text-slate-400" /> };
+                }
+              };
+
+              const actionBadge = getActionTypeBadge(log.category);
+
+              return (
+                <div
+                  key={log.id}
+                  className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-colors"
+                >
+                  <div className="flex items-start sm:items-center gap-3">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${actionBadge.bg} shrink-0`}>
+                      {actionBadge.icon}
+                      <span>{actionBadge.label}</span>
+                    </span>
+
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <strong className="text-white font-semibold">{log.title}</strong>
+                        {log.targetId && (
+                          <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-800/40">
+                            {log.targetId}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-slate-400 text-[11px] mt-0.5 line-clamp-1">
+                        {log.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto text-[11px] text-slate-400">
+                    <span className="text-emerald-400 font-medium">
+                      {log.adminName.split(' ')[0]} {log.adminName.split(' ')[1]}
+                    </span>
+                    <span className="font-mono text-slate-500 flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-slate-500" />
+                      {log.timestamp}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Option 2: Persistent Cloud Database Banner */}
+        <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-start gap-2.5">
+            <Database className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-indigo-200 font-semibold block">
+                Option 2 (Persistent Cloud Database Synchronization):
+              </strong>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Connects a centralized cloud database so every CRUD action (marks, students, credentials, news) made on this computer updates centrally and syncs immediately across all computers, smartphones, and tablets worldwide.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => exportDataBackup()}
+            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold text-xs shrink-0 flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+            title="Download full database JSON for production deployment"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export Cloud JSON</span>
+          </button>
         </div>
       </div>
 

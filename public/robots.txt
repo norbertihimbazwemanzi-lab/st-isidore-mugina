@@ -1,0 +1,10 @@
+# robots.txt for Groupe Scolaire Saint Isidore Mugina
+# Official school portal: https://gssidoremugina.rw/
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+# Sitemaps
+Sitemap: https://gssidoremugina.rw/sitemap.xml

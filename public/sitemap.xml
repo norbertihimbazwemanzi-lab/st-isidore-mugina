@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Home / Landing Page -->
+  <url>
+    <loc>https://gssidoremugina.rw/</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- About & Catholic Diocesan Identity -->
+  <url>
+    <loc>https://gssidoremugina.rw/#about</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 18 Classroom Streams Matrix (Nursery, Primary, Secondary) -->
+  <url>
+    <loc>https://gssidoremugina.rw/#streams</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Digital Library & E-Learning Past Papers (PLE, S3) -->
+  <url>
+    <loc>https://gssidoremugina.rw/#elearning</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Official Student Terminal Results Portal -->
+  <url>
+    <loc>https://gssidoremugina.rw/#portal</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Multi-Term Student Performance Trends -->
+  <url>
+    <loc>https://gssidoremugina.rw/#performance-trends</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- School Fees & Feeding Program Structure -->
+  <url>
+    <loc>https://gssidoremugina.rw/#fees</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Leadership & Staff Directory -->
+  <url>
+    <loc>https://gssidoremugina.rw/#staff</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Online Admission Application Portal -->
+  <url>
+    <loc>https://gssidoremugina.rw/#admissions</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Latest School Bulletins & Academic Calendar -->
+  <url>
+    <loc>https://gssidoremugina.rw/#news</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Frequently Asked Questions -->
+  <url>
+    <loc>https://gssidoremugina.rw/#faq</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Contact & Location Map (Mugina, Kamonyi) -->
+  <url>
+    <loc>https://gssidoremugina.rw/#contact</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

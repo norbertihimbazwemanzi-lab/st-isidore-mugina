@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
-  StaffMember, NewsItem, EventItem, StudentResult, EResource, Language 
+  StaffMember, NewsItem, EventItem, StudentResult, EResource, Language,
+  AdminLogEntry, AdminActionCategory 
 } from '../types';
 import { 
   LEADERSHIP_STAFF, NEWS_ANNOUNCEMENTS, UPCOMING_EVENTS, MOCK_STUDENTS, E_RESOURCES 
@@ -47,11 +48,23 @@ interface SchoolContextType {
   addEvent: (eventItem: Omit<EventItem, 'id'>) => void;
   deleteEvent: (id: string) => void;
 
-  // Students & Marks (Add, Edit, Credentials)
+  // Students & Marks (Add, Edit, Delete, Credentials)
   students: Record<string, StudentResult>;
   updateStudentMarks: (regNumber: string, updated: StudentResult) => void;
   addStudent: (student: StudentResult) => void;
+  deleteStudent: (regNumber: string) => void;
   assignStudentPin: (regNumber: string, newPin: string) => void;
+
+  // Admin Activity Log & Audit Trail
+  adminActivityLogs: AdminLogEntry[];
+  logAdminAction: (
+    category: AdminActionCategory,
+    title: string,
+    description: string,
+    targetId?: string,
+    details?: any
+  ) => void;
+  clearActivityLogs: () => void;
 
   // Digital Library / E-Learning Documents (Read, Insert/Upload, Delete)
   libraryDocuments: EResource[];
@@ -72,6 +85,59 @@ const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
 
 export const HEADTEACHER_ADMIN_USER = '280508200528';
 export const HEADTEACHER_ADMIN_CODE = '@0798744704';
+
+export const INITIAL_ADMIN_LOGS: AdminLogEntry[] = [
+  {
+    id: 'log-01',
+    timestamp: 'Oct 3, 2026, 08:30 AM',
+    isoDate: '2026-10-03T08:30:00Z',
+    adminName: 'Habiyaremye Charles (Headteacher)',
+    category: 'system_sync',
+    title: 'Google Search Console Verification & Sitemap Deployed',
+    description: 'Generated sitemap.xml, robots.txt, and Search Console verification tokens for gssidoremugina.rw indexation.',
+    targetId: 'GSC-2026-AUTH',
+  },
+  {
+    id: 'log-02',
+    timestamp: 'Oct 2, 2026, 04:15 PM',
+    isoDate: '2026-10-02T16:15:00Z',
+    adminName: 'Habiyaremye Charles (Headteacher)',
+    category: 'enroll_student',
+    title: 'New Candidate Enrolled: Keza Divine',
+    description: 'Enrolled student Keza Divine into Senior 3 Stream B (NESA Candidate). Portal access PIN issued.',
+    targetId: 'MUG-2026-S3B-01',
+  },
+  {
+    id: 'log-03',
+    timestamp: 'Oct 2, 2026, 02:40 PM',
+    isoDate: '2026-10-02T14:40:00Z',
+    adminName: 'Habiyaremye Charles (Headteacher)',
+    category: 'update_credentials',
+    title: 'Portal Credentials Provisioned for Uwase Ange Marie',
+    description: 'Issued confidential admission portal credential PIN ST-MUG-304 for Primary 6 PLE Candidate.',
+    targetId: 'MUG-2026-P6A-08',
+  },
+  {
+    id: 'log-04',
+    timestamp: 'Oct 1, 2026, 11:20 AM',
+    isoDate: '2026-10-01T11:20:00Z',
+    adminName: 'Habiyaremye Charles (Headteacher)',
+    category: 'update_marks',
+    title: 'Official Term 2 Results Certified',
+    description: 'Reviewed and certified Term 2 terminal evaluations for 18 classroom streams under REB competency-based curriculum.',
+    targetId: 'ALL-18-STREAMS',
+  },
+  {
+    id: 'log-05',
+    timestamp: 'Sep 30, 2026, 09:10 AM',
+    isoDate: '2026-09-30T09:10:00Z',
+    adminName: 'Habiyaremye Charles (Headteacher)',
+    category: 'add_teacher',
+    title: 'Staff Allocation Assigned: Dean of Studies',
+    description: 'Assigned M. Mugabo Jean Damascene as Secondary Dean of Studies & allocated Senior 3 physics laboratory supervision.',
+    targetId: 'staff-03',
+  }
+];
 
 const loadStorage = <T,>(key: string, fallback: T): T => {
   try {
@@ -99,6 +165,15 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [events, setEvents] = useState<EventItem[]>(() => loadStorage('gs_mugina_events', UPCOMING_EVENTS));
   const [students, setStudents] = useState<Record<string, StudentResult>>(() => loadStorage('gs_mugina_students', MOCK_STUDENTS));
   const [libraryDocuments, setLibraryDocuments] = useState<EResource[]>(() => loadStorage('gs_mugina_library', E_RESOURCES));
+  const [adminActivityLogs, setAdminActivityLogs] = useState<AdminLogEntry[]>(() =>
+    loadStorage('gs_mugina_activity_logs', INITIAL_ADMIN_LOGS)
+  );
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('gs_mugina_activity_logs', JSON.stringify(adminActivityLogs));
+    } catch {}
+  }, [adminActivityLogs]);
 
   const [notificationToast, setNotificationToast] = useState<string | null>(null);
 
@@ -264,6 +339,42 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     showToast('Logged out of Staff portal session.');
   };
 
+  const logAdminAction = (
+    category: AdminActionCategory,
+    title: string,
+    description: string,
+    targetId?: string,
+    details?: any
+  ) => {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    };
+    const formattedTime = now.toLocaleDateString('en-US', options);
+
+    const newEntry: AdminLogEntry = {
+      id: `log-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: formattedTime,
+      isoDate: now.toISOString(),
+      adminName: 'Habiyaremye Charles (Headteacher)',
+      category,
+      title,
+      description,
+      targetId,
+    };
+
+    setAdminActivityLogs((prev) => [newEntry, ...prev.slice(0, 99)]);
+  };
+
+  const clearActivityLogs = () => {
+    setAdminActivityLogs([]);
+    showToast('Admin activity log has been cleared.');
+  };
+
   const addTeacher = (teacherData: Omit<StaffMember, 'id' | 'avatarInitials'>) => {
     const initials = teacherData.name
       .split(' ')
@@ -283,6 +394,12 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     setTeachers((prev) => [newTeacher, ...prev]);
+    logAdminAction(
+      'add_teacher',
+      `Staff Member Added: ${newTeacher.name}`,
+      `Added teacher ${newTeacher.name} assigned to ${newTeacher.classAssigned}. Credential issued: ${newTeacher.accessPasscode}`,
+      newTeacher.id
+    );
     showToast(`Added ${newTeacher.name} with credential pass "${newTeacher.accessPasscode}"!`);
   };
 
@@ -306,11 +423,19 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return t;
       })
     );
+    logAdminAction(
+      'edit_teacher',
+      `Staff Profile Updated: ${updated.name || 'Teacher'}`,
+      `Updated class allocation or biographical notes for staff member.`,
+      id
+    );
     showToast(`Updated staff details for ${updated.name || 'teacher'}`);
   };
 
   const deleteTeacher = (id: string) => {
+    const trName = teachers.find(t => t.id === id)?.name || id;
     setTeachers((prev) => prev.filter((t) => t.id !== id));
+    logAdminAction('delete_teacher', `Staff Removed: ${trName}`, `Removed teacher record ${trName} from staff registry.`, id);
     showToast('Teacher record removed.');
   };
 
@@ -332,6 +457,7 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setCurrentAuthenticatedStaff((prev) => prev ? { ...prev, photoUrl } : null);
     }
 
+    logAdminAction('upload_media', `Staff Photo Updated: ${teacherId}`, `Uploaded new portrait photo for faculty member.`, teacherId);
     showToast('Profile photo updated successfully!');
     return true;
   };
@@ -354,6 +480,7 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setCurrentAuthenticatedStaff((prev) => prev ? { ...prev, bio, ...(phone ? { phone } : {}) } : null);
     }
 
+    logAdminAction('edit_teacher', `Staff Bio Updated: ${teacherId}`, `Updated personal pedagogy bio & phone.`, teacherId);
     showToast('Staff biography updated successfully!');
     return true;
   };
@@ -364,10 +491,17 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       return;
     }
 
+    const tr = teachers.find(t => t.id === teacherId);
     setTeachers((prev) =>
       prev.map((t) => (t.id === teacherId ? { ...t, accessPasscode: newPasscode.trim() } : t))
     );
 
+    logAdminAction(
+      'update_credentials',
+      `Teacher Credential Assigned: ${tr?.name || teacherId}`,
+      `Assigned new portal passcode "${newPasscode.trim()}" to ${tr?.name || teacherId}.`,
+      teacherId
+    );
     showToast(`Assigned new access credential "${newPasscode.trim()}" to staff member!`);
   };
 
@@ -382,11 +516,19 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     setNews((prev) => [newArticle, ...prev]);
+    logAdminAction(
+      'publish_news',
+      `News Bulletin Published: ${newArticle.title}`,
+      `Published announcement under category "${newArticle.category}" signed by ${newArticle.author}.`,
+      newArticle.id
+    );
     showToast(`Published bulletin: "${newArticle.title}" to school website!`);
   };
 
   const deleteNews = (id: string) => {
+    const item = news.find(n => n.id === id);
     setNews((prev) => prev.filter((n) => n.id !== id));
+    logAdminAction('delete_news', `News Removed: ${item?.title || id}`, `Removed bulletin from school website.`, id);
     showToast('News announcement removed.');
   };
 
@@ -397,11 +539,19 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     setEvents((prev) => [...prev, newEvent]);
+    logAdminAction(
+      'add_event',
+      `Calendar Event Added: ${newEvent.title}`,
+      `Scheduled event on ${newEvent.date} (${newEvent.time}) at ${newEvent.location}.`,
+      newEvent.id
+    );
     showToast(`Added calendar event: "${newEvent.title}"`);
   };
 
   const deleteEvent = (id: string) => {
+    const evt = events.find(e => e.id === id);
     setEvents((prev) => prev.filter((e) => e.id !== id));
+    logAdminAction('delete_event', `Event Removed: ${evt?.title || id}`, `Removed calendar event from school schedule.`, id);
     showToast('Calendar event removed.');
   };
 
@@ -410,28 +560,66 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       ...prev,
       [regNumber]: updated,
     }));
+    logAdminAction(
+      'update_marks',
+      `Marks Updated: ${updated.studentName}`,
+      `Updated academic term performance (${updated.overallPercentage}%, ${updated.rank}) for ${regNumber}.`,
+      regNumber
+    );
     showToast(`Updated official report card for ${updated.studentName} (${regNumber})!`);
   };
 
   const addStudent = (newStudent: StudentResult) => {
     const reg = newStudent.regNumber.toUpperCase();
+    const pin = newStudent.accessPin || 'MUGINA2026';
+    const studentWithPin = { ...newStudent, accessPin: pin };
     setStudents((prev) => ({
       ...prev,
-      [reg]: newStudent,
+      [reg]: studentWithPin,
     }));
-    showToast(`Enrolled ${newStudent.studentName} into ${newStudent.stream}!`);
+    logAdminAction(
+      'enroll_student',
+      `New Pupil Enrolled: ${newStudent.studentName}`,
+      `Enrolled into ${newStudent.stream} (${reg}) with portal access PIN "${pin}".`,
+      reg
+    );
+    showToast(`Enrolled ${newStudent.studentName} into ${newStudent.stream}! Access PIN: ${pin}`);
+  };
+
+  const deleteStudent = (regNumber: string) => {
+    const reg = regNumber.toUpperCase();
+    const stName = students[reg]?.studentName || reg;
+    setStudents((prev) => {
+      const copy = { ...prev };
+      delete copy[reg];
+      return copy;
+    });
+    logAdminAction(
+      'delete_student',
+      `Student Record Deleted: ${stName}`,
+      `Deleted student record and terminal results for registration number ${reg}.`,
+      reg
+    );
+    showToast(`Removed student record for ${stName} (${reg}).`);
   };
 
   const assignStudentPin = (regNumber: string, newPin: string) => {
     const reg = regNumber.toUpperCase();
     if (!students[reg]) return;
+    const cleanPin = newPin.trim();
     setStudents((prev) => ({
       ...prev,
       [reg]: {
         ...prev[reg],
-        accessPin: newPin.trim(),
+        accessPin: cleanPin,
       },
     }));
+    logAdminAction(
+      'update_credentials',
+      `Student Access PIN Updated: ${reg}`,
+      `Assigned new portal access PIN "${cleanPin}" to ${students[reg].studentName}.`,
+      reg
+    );
     showToast(`Assigned new portal access PIN to ${students[reg].studentName} (${reg})!`);
   };
 
@@ -442,11 +630,19 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       downloads: 1,
     };
     setLibraryDocuments((prev) => [newDoc, ...prev]);
+    logAdminAction(
+      'library_doc',
+      `Library Resource Added: ${newDoc.title}`,
+      `Uploaded resource (${newDoc.category}) for ${newDoc.level}.`,
+      newDoc.id
+    );
     showToast(`Added PDF document "${newDoc.title}" to student library!`);
   };
 
   const deleteLibraryDocument = (id: string) => {
+    const doc = libraryDocuments.find(d => d.id === id);
     setLibraryDocuments((prev) => prev.filter((d) => d.id !== id));
+    logAdminAction('library_doc', `Library Doc Removed: ${doc?.title || id}`, `Removed document from library.`, id);
     showToast('Document removed from digital library.');
   };
 
@@ -529,7 +725,11 @@ export const SchoolProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         students,
         updateStudentMarks,
         addStudent,
+        deleteStudent,
         assignStudentPin,
+        adminActivityLogs,
+        logAdminAction,
+        clearActivityLogs,
         libraryDocuments,
         addLibraryDocument,
         deleteLibraryDocument,
